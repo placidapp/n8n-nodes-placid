@@ -1,4 +1,5 @@
 import { IExecuteFunctions, INodeExecutionData, NodeOperationError, IHttpRequestMethods } from 'n8n-workflow';
+import { PlacidConfig } from '../../utils/config';
 
 export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData[]> {
 	try {
@@ -16,7 +17,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 			queryParams.append('collection_id', additionalFields.collection_id);
 		}
 
-		const baseUrl = 'https://api.placid.app/api/rest/templates';
+		const baseUrl = PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.TEMPLATES);
 		let currentUrl = queryParams.toString() ? `${baseUrl}?${queryParams.toString()}` : baseUrl;
 
 		do {
@@ -24,8 +25,9 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 				method: 'GET' as IHttpRequestMethods,
 				url: currentUrl,
 				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
+					'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
+					'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+					'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 				},
 			};
 

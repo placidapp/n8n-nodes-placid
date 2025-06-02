@@ -1,13 +1,15 @@
 import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
+import { PlacidConfig } from '../../utils/config';
 
 // Helper function to get PDF by ID - can be reused by create operation for polling
 export async function getPdfById(executeFunctions: IExecuteFunctions, pdfId: string): Promise<any> {
 	const options = {
 		method: 'GET' as IHttpRequestMethods,
-		url: `https://api.placid.app/api/rest/pdfs/${pdfId}`,
+		url: `${PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.PDFS)}/${pdfId}`,
 		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json',
+			'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
+			'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+			'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 		},
 	};
 

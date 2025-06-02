@@ -1,6 +1,7 @@
 import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
 import { getPdfById } from './get.operation';
 import { processUnifiedLayers, LayerData } from '../../utils/layerUtils';
+import { PlacidConfig } from '../../utils/config';
 
 export async function execute(this: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
 	const configurationMode = this.getNodeParameter('configurationMode', i) as string;
@@ -76,10 +77,11 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	// Use the standard REST API endpoint for creating PDFs
 	const createOptions = {
 		method: 'POST' as IHttpRequestMethods,
-		url: 'https://api.placid.app/api/rest/pdfs',
+		url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.PDFS),
 		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json',
+			'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
+			'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+			'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 		},
 		body,
 	};
@@ -89,8 +91,9 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	// If PDF was created successfully, poll for completion using the shared helper function
 	if (createResponse.id) {
 		const pdfId = createResponse.id;
-		const maxAttempts = 30; // Maximum polling attempts
-		const pollInterval = 2000; // 2 seconds between polls
+		const pollingConfig = PlacidConfig.getPollingConfig('PDF');
+		const maxAttempts = pollingConfig.MAX_ATTEMPTS;
+		const pollInterval = pollingConfig.INTERVAL_MS;
 		
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
 			// Wait before polling (except for first attempt)
@@ -114,7 +117,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		}
 		
 		// If we've reached max attempts without completion
-		throw new Error(`PDF generation timed out after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
+		throw new Error(`${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
 	}
 	
 	// Fallback: return the initial response if no ID was provided

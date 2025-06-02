@@ -1,4 +1,5 @@
 import { IExecuteFunctions, ILoadOptionsFunctions, IDataObject, IHttpRequestMethods } from 'n8n-workflow';
+import { PlacidConfig } from '../utils/config';
 
 const BASE_URL = 'https://api.placid.app/api/integromat';
 
@@ -20,7 +21,8 @@ export async function placidApiRequest(
 export const requestDefaults = {
 	baseURL: BASE_URL,
 	headers: {
-		Accept: 'application/json',
-		'Content-Type': 'application/json',
+		Accept: PlacidConfig.HTTP.HEADERS.ACCEPT,
+		'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+		'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 	},
 }; 

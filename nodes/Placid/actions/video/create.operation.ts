@@ -1,6 +1,7 @@
 import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
 import { getVideoById } from './get.operation';
 import { processUnifiedLayers, LayerData } from '../../utils/layerUtils';
+import { PlacidConfig } from '../../utils/config';
 
 export async function execute(this: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
 	const configurationMode = this.getNodeParameter('configurationMode', i) as string;
@@ -87,10 +88,11 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	// Use the standard REST API endpoint for creating videos
 	const createOptions = {
 		method: 'POST' as IHttpRequestMethods,
-		url: 'https://api.placid.app/api/rest/videos',
+		url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.VIDEOS),
 		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json',
+			'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
+			'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+			'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 		},
 		body,
 	};
@@ -100,8 +102,9 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	// If video was created successfully, poll for completion using the shared helper function
 	if (createResponse.id) {
 		const videoId = createResponse.id;
-		const maxAttempts = 60; // Maximum polling attempts (videos take longer)
-		const pollInterval = 5000; // 5 seconds between polls
+		const pollingConfig = PlacidConfig.getPollingConfig('VIDEO');
+		const maxAttempts = pollingConfig.MAX_ATTEMPTS;
+		const pollInterval = pollingConfig.INTERVAL_MS;
 		
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
 			// Wait before polling (except for first attempt)
@@ -125,7 +128,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		}
 		
 		// If we've reached max attempts without completion
-		throw new Error(`Video generation timed out after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
+		throw new Error(`${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
 	}
 	
 	// Fallback: return the initial response if no ID was provided

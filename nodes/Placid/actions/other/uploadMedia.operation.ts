@@ -1,4 +1,5 @@
 import { IExecuteFunctions, INodeExecutionData, NodeOperationError } from 'n8n-workflow';
+import { PlacidConfig } from '../../utils/config';
 
 export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData> {
 	const files = this.getNodeParameter('files.fileItems', index, []) as Array<{
@@ -77,9 +78,12 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 			'placidApi',
 			{
 				method: 'POST',
-				url: 'https://api.placid.app/api/rest/media',
+				url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.MEDIA),
 				formData,
 				json: false, // Important: don't parse as JSON since we're sending multipart
+				headers: {
+					'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
+				},
 			},
 		);
 

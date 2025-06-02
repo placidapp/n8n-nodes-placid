@@ -1,4 +1,5 @@
 import { ILoadOptionsFunctions, INodePropertyOptions, INodeListSearchResult, IHttpRequestMethods } from 'n8n-workflow';
+import { PlacidConfig } from '../utils/config';
 
 export async function getTemplates(
 	this: ILoadOptionsFunctions,
@@ -10,7 +11,7 @@ export async function getTemplates(
 	const returnData: INodePropertyOptions[] = [];
 	
 	// Use pagination token (next page URL) if provided, otherwise start with first page
-	let url = paginationToken || 'https://api.placid.app/api/rest/templates';
+	let url = paginationToken || PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.TEMPLATES);
 	
 	// Add search parameter if not already in pagination URL (for future Placid support)
 	if (!paginationToken && filter) {
@@ -22,8 +23,9 @@ export async function getTemplates(
 		method: 'GET' as IHttpRequestMethods,
 		url: url,
 		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json',
+			'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
+			'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+			'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 		},
 	};
 
@@ -67,10 +69,11 @@ async function getLayersForTemplate(loadOptionsFunctions: ILoadOptionsFunctions,
 	// Use the standard REST API endpoint for getting template details
 	const options = {
 		method: 'GET' as IHttpRequestMethods,
-		url: `https://api.placid.app/api/rest/templates/${templateId}`,
+		url: `${PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.TEMPLATES)}/${templateId}`,
 		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json',
+			'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
+			'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
+			'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 		},
 	};
 

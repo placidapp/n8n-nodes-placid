@@ -1,6 +1,7 @@
 import { INodeProperties } from 'n8n-workflow';
 import { getAllLayerTypes, getAllPropertiesForLayerType } from './layerProperties';
 import { IExecuteFunctions, NodeOperationError } from 'n8n-workflow';
+import { PlacidConfig } from './config';
 
 // ===== SHARED LAYER CONFIGURATION FIELDS =====
 
@@ -334,9 +335,12 @@ export async function uploadBinaryFile(
 			'placidApi',
 			{
 				method: 'POST',
-				url: 'https://api.placid.app/api/rest/media',
+				url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.MEDIA),
 				formData,
 				json: false, // Important: don't parse as JSON since we're sending multipart
+				headers: {
+					'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
+				},
 			},
 		);
 
