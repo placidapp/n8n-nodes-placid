@@ -4,6 +4,7 @@ import {
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
+import { PlacidConfig } from '../nodes/Placid/utils/config';
 
 export class PlacidApi implements ICredentialType {
 	name = 'placidApi';
@@ -26,14 +27,15 @@ export class PlacidApi implements ICredentialType {
 		properties: {
 			headers: {
 				Authorization: '=Bearer {{$credentials.apiKey}}',
+				'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 			},
 		},
 	};
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: 'https://api.placid.app/api',
-			url: '/n8n/auth',
+			baseURL: PlacidConfig.CREDENTIAL_TEST.BASE_URL,
+			url: PlacidConfig.CREDENTIAL_TEST.ENDPOINT,
 			method: 'GET',
 		},
 	};

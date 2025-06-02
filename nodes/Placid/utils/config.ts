@@ -24,6 +24,14 @@ export class PlacidConfig {
 	} as const;
 
 	/**
+	 * Credential test configuration
+	 */
+	static readonly CREDENTIAL_TEST = {
+		BASE_URL: 'https://api.placid.app/api',
+		ENDPOINT: '/n8n/auth',
+	} as const;
+
+	/**
 	 * Polling configuration for async operations
 	 */
 	static readonly POLLING = {
@@ -61,7 +69,6 @@ export class PlacidConfig {
 	 * Helper methods for building full URLs
 	 */
 	static getRestUrl(endpoint: string): string {
-        console.log('getRestUrl', this.API.REST_BASE, endpoint);
 		return `${this.API.REST_BASE}${endpoint}`;
 	}
 
