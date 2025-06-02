@@ -57,20 +57,20 @@ export class Placid implements INodeType {
 						value: 'image',
 					},
 					{
-						name: 'Other',
-						value: 'other',
-					},
-					{
 						name: 'PDF',
 						value: 'pdf',
+					},
+					{
+						name: 'Video',
+						value: 'video',
 					},
 					{
 						name: 'Template',
 						value: 'template',
 					},
 					{
-						name: 'Video',
-						value: 'video',
+						name: 'Other',
+						value: 'other',
 					},
 				],
 				default: 'image',
@@ -78,13 +78,13 @@ export class Placid implements INodeType {
 			// Operations and fields
 			...imageOperations,
 			...pdfOperations,
-			...templateOperations,
 			...videoOperations,
+			...templateOperations,
 			...otherOperations,
 			...imageFields,
 			...pdfFields,
-			...templateFields,
 			...videoFields,
+			...templateFields,
 			...otherFields,
 		],
 	};
