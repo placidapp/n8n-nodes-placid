@@ -11,14 +11,14 @@
     "generation"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/n8n-nodes-placid",
+  "homepage": "https://github.com/placidapp/n8n-nodes-placid",
   "author": {
     "name": "Armin Ulrich",
     "email": "armin@placid.app"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/n8n-nodes-placid.git"
+    "url": "https://github.com/placidapp/n8n-nodes-placid.git"
   },
   "engines": {
     "node": ">=20.15"
