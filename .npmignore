@@ -1,0 +1,42 @@
+# Source files (TypeScript sources - we only publish compiled JS)
+nodes/
+credentials/
+
+# Development configuration
+tsconfig.json
+gulpfile.js
+.eslintrc.*
+.prettierrc.js
+.editorconfig
+
+# Development scripts and tools
+watch-dev.sh
+
+# IDE and editor files
+.vscode/
+.cursor/
+.idea/
+
+# Development logs and caches
+logs/
+*.log
+.eslintcache
+*.tsbuildinfo
+
+# Git and version control
+.git/
+.gitignore
+
+# Development dependencies and lock files
+package-lock.json
+
+# Test and coverage files
+test/
+tests/
+*.test.js
+*.test.ts
+coverage/
+
+# Documentation that's not needed in npm package
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md 

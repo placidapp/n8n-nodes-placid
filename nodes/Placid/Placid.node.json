@@ -1,0 +1,26 @@
+{
+	"node": "n8n-nodes-placid.placid",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": [
+		"Media"
+	],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://placid.app/docs/2.0/rest/authentication"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://placid.app/docs/2.0/rest/images#create"
+			},
+			{
+				"url": "https://placid.app/docs/2.0/rest/pdfs#create"
+			},
+			{
+				"url": "https://placid.app/docs/2.0/rest/videos#create"
+			}
+		]
+	}
+} 
