@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-placid",
-  "version": "0.0.1-beta.1",
+  "version": "0.1.0",
   "description": "n8n node to interact with Placid API for creative generation",
   "keywords": [
     "n8n-community-node-package",
