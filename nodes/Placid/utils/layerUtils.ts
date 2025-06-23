@@ -256,7 +256,7 @@ export function createDynamicLayerConfigurationFields(
 				allPropertiesArray.push({
 					name: prefixedName,
 					value: prop.value,
-					description: `${prop.description} (${layerType.name} layer property)`,
+					description: `${prop.description}`,
 				});
 			}
 		});

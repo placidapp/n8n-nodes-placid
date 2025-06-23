@@ -26,7 +26,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	}
 	
 	if (configurationMode === 'advanced') {
-		// Advanced mode: use JSON directly
+		// Advanced mode: multi-page JSON configuration
 		const pagesJson = this.getNodeParameter('pagesJson', i) as string;
 		try {
 			const pages = JSON.parse(pagesJson);
@@ -38,38 +38,24 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			throw new Error(`Invalid JSON in pages configuration: ${error.message}`);
 		}
 	} else {
-		// Simple mode: process form fields for each page
-		const pages = this.getNodeParameter('pages.pageItems', i, []) as Array<{
-			template_id: { value: string } | string;
-			layerData: {
-				layerItems?: LayerData[];
-			};
-		}>;
-
-		if (!pages || pages.length === 0) {
-			throw new Error('At least one page is required for PDF generation');
+		// Simple mode: single template + layers (like image action)
+		const templateIdParam = this.getNodeParameter('template_id', i) as { value: string } | string;
+		const templateId = typeof templateIdParam === 'string' ? templateIdParam : templateIdParam.value;
+		
+		if (!templateId) {
+			throw new Error('Template ID is required');
 		}
+		
+		const pageData: { template_uuid: string; layers: { [key: string]: any } } = {
+			template_uuid: templateId,
+			layers: {},
+		};
 
-		// Process each page
-		for (const page of pages) {
-			// Handle both resource locator modes: list mode (object with value) and ID mode (direct string)
-			const templateId = typeof page.template_id === 'string' ? page.template_id : page.template_id.value;
-			
-			if (!templateId) {
-				throw new Error('Template ID is required for each page');
-			}
+		// Process layers using the unified utility function (same as image action)
+		const layers = this.getNodeParameter('layers.layerItems', i, []) as LayerData[];
+		pageData.layers = await processUnifiedLayers(layers, this, i);
 
-			const pageData: { template_uuid: string; layers: { [key: string]: any } } = {
-				template_uuid: templateId,
-				layers: {},
-			};
-
-			// Process layers for this page using the unified utility function
-			const layers = page.layerData?.layerItems || [];
-			pageData.layers = await processUnifiedLayers(layers, this, i);
-
-			body.pages.push(pageData);
-		}
+		body.pages = [pageData];
 	}
 	
 

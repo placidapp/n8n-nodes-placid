@@ -1,5 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
-import { createNestedLayerFields } from '../../utils/layerUtils';
+import { createDynamicLayerConfigurationFields } from '../../utils/layerUtils';
 
 export const pdfOperations: INodeProperties[] = [
 	{
@@ -46,16 +46,16 @@ export const pdfFields: INodeProperties[] = [
 			{
 				name: 'Simple',
 				value: 'simple',
-				description: 'Use form fields to configure pages and layers',
+				description: 'Single-page PDF with template selection and form fields',
 			},
 			{
 				name: 'Advanced',
 				value: 'advanced',
-				description: 'Define pages and layers using JSON',
+				description: 'Multi-page PDF using JSON array configuration',
 			},
 		],
 		default: 'simple',
-		description: 'Choose how you want to configure the PDF pages and layers',
+		description: 'Choose how you want to configure the PDF generation',
 		displayOptions: {
 			show: {
 				resource: ['pdf'],
@@ -64,15 +64,14 @@ export const pdfFields: INodeProperties[] = [
 		},
 	},
 
-	// ===== SIMPLE MODE: MULTI-PAGE CONFIGURATION =====
+	// ===== SIMPLE MODE: SINGLE-PAGE CONFIGURATION (like Image action) =====
 	{
-		displayName: 'Pages',
-		name: 'pages',
-		type: 'fixedCollection',
-		default: { pageItems: [] },
-		typeOptions: {
-			multipleValues: true,
-		},
+		displayName: 'Template',
+		name: 'template_id',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'Select the Placid template to use for PDF generation',
 		displayOptions: {
 			show: {
 				resource: ['pdf'],
@@ -80,49 +79,41 @@ export const pdfFields: INodeProperties[] = [
 				configurationMode: ['simple'],
 			},
 		},
-		options: [
+		modes: [
 			{
-				name: 'pageItems',
-				displayName: 'Add Page',
-				values: [
-					{
-						displayName: 'Template',
-						name: 'template_id',
-						type: 'resourceLocator',
-						default: { mode: 'list', value: '' },
-						required: true,
-						description: 'Select the Placid template to use for this page',
-						modes: [
-							{
-								displayName: 'From List',
-								name: 'list',
-								type: 'list',
-								typeOptions: {
-									searchListMethod: 'getTemplates',
-									searchable: true,
-								},
-							},
-							{
-								displayName: 'By ID',
-								name: 'id',
-								type: 'string',
-								hint: 'Enter the template UUID directly',
-								placeholder: 'e.g., gpsm5pn5n4tpz',
-								extractValue: {
-									type: 'regex',
-									regex: '^(.*)$',
-								},
-							},
-						],
-					},
-					// ===== UNIFIED LAYER CONFIGURATION FOR PAGES =====
-					...createNestedLayerFields('pdf'),
-				],
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getTemplates',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				hint: 'Enter the template UUID directly',
+				placeholder: 'e.g., gpsm5pn5n4tpz',
+				extractValue: {
+					type: 'regex',
+					regex: '^(.*)$',
+				},
 			},
 		],
 	},
 
-	// ===== ADVANCED MODE: JSON CONFIGURATION =====
+	// ===== DYNAMIC LAYER CONFIGURATION (like Image action) =====
+	...createDynamicLayerConfigurationFields(
+		'pdf',
+		'create', 
+		'configurationMode',
+		'Layers',
+		'layerItems',
+		'Add Layer'
+	),
+
+	// ===== ADVANCED MODE: MULTI-PAGE JSON CONFIGURATION =====
 	{
 		displayName: 'Pages (JSON)',
 		name: 'pagesJson',
