@@ -1,5 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
-import { createNestedLayerFields } from '../../utils/layerUtils';
+import { createDynamicLayerConfigurationFields } from '../../utils/layerUtils';
 
 export const videoOperations: INodeProperties[] = [
 	{
@@ -46,12 +46,12 @@ export const videoFields: INodeProperties[] = [
 			{
 				name: 'Simple',
 				value: 'simple',
-				description: 'Use form fields to configure clips and layers',
+				description: 'Single-clip video with template selection and form fields',
 			},
 			{
 				name: 'Advanced',
 				value: 'advanced',
-				description: 'Define clips and layers using JSON',
+				description: 'Multi-clip video using JSON array configuration',
 			},
 		],
 		default: 'simple',
@@ -64,15 +64,52 @@ export const videoFields: INodeProperties[] = [
 		},
 	},
 
-	// ===== SIMPLE MODE: MULTI-CLIP CONFIGURATION =====
+	// ===== SIMPLE MODE: SINGLE-CLIP CONFIGURATION (like Image/PDF action) =====
 	{
-		displayName: 'Clips',
-		name: 'clips',
-		type: 'fixedCollection',
-		default: { clipItems: [] },
-		typeOptions: {
-			multipleValues: true,
+		displayName: 'Template',
+		name: 'template_id',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'Select the Placid template to use for video generation',
+		displayOptions: {
+			show: {
+				resource: ['video'],
+				operation: ['create'],
+				configurationMode: ['simple'],
+			},
 		},
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getTemplates',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				hint: 'Enter the template UUID directly',
+				placeholder: 'e.g., gpsm5pn5n4tpz',
+				extractValue: {
+					type: 'regex',
+					regex: '^(.*)$',
+				},
+			},
+		],
+	},
+
+	// ===== AUDIO SETTINGS FOR SIMPLE MODE =====
+	{
+		displayName: 'Audio Settings',
+		name: 'audioSettings',
+		type: 'collection',
+		placeholder: 'Add Audio Setting',
+		default: {},
 		displayOptions: {
 			show: {
 				resource: ['video'],
@@ -82,97 +119,60 @@ export const videoFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'clipItems',
-				displayName: 'Add Clip',
-				values: [
+				displayName: 'Audio URL',
+				name: 'audio',
+				type: 'string',
+				default: '',
+				placeholder: 'https://example.com/audio.mp3',
+				description: 'URL of MP3 audio file for this clip',
+			},
+			{
+				displayName: 'Audio Duration',
+				name: 'audio_duration',
+				type: 'options',
+				options: [
 					{
-						displayName: 'Template',
-						name: 'template_id',
-						type: 'resourceLocator',
-						default: { mode: 'list', value: '' },
-						required: true,
-						description: 'Select the Placid template to use for this clip',
-						modes: [
-							{
-								displayName: 'From List',
-								name: 'list',
-								type: 'list',
-								typeOptions: {
-									searchListMethod: 'getTemplates',
-									searchable: true,
-								},
-							},
-							{
-								displayName: 'By ID',
-								name: 'id',
-								type: 'string',
-								hint: 'Enter the template UUID directly',
-								placeholder: 'e.g., gpsm5pn5n4tpz',
-								extractValue: {
-									type: 'regex',
-									regex: '^(.*)$',
-								},
-							},
-						],
+						name: 'Auto (Trim to Video Length)',
+						value: 'auto',
 					},
 					{
-						displayName: 'Audio Settings',
-						name: 'audioSettings',
-						type: 'collection',
-						placeholder: 'Add Audio Setting',
-						default: {},
-						options: [
-							{
-								displayName: 'Audio URL',
-								name: 'audio',
-								type: 'string',
-								default: '',
-								placeholder: 'https://example.com/audio.mp3',
-								description: 'URL of MP3 audio file for this clip',
-							},
-							{
-								displayName: 'Audio Duration',
-								name: 'audio_duration',
-								type: 'options',
-								options: [
-									{
-										name: 'Auto (Trim to Video Length)',
-										value: 'auto',
-									},
-									{
-										name: 'Full (Include Whole Audio Track)',
-										value: 'full',
-									},
-								],
-								default: 'full',
-								description: 'How to handle audio duration',
-							},
-							{
-								displayName: 'Audio Trim Start',
-								name: 'audio_trim_start',
-								type: 'string',
-								default: '',
-								placeholder: '00:00:45 or 00:00:45.25',
-								description: 'Timestamp of the trim start point (format: HH:MM:SS or HH:MM:SS.MS)',
-							},
-							{
-								displayName: 'Audio Trim End',
-								name: 'audio_trim_end',
-								type: 'string',
-								default: '',
-								placeholder: '00:00:55 or 00:00:55.25',
-								description: 'Timestamp of the trim end point (format: HH:MM:SS or HH:MM:SS.MS)',
-							},
-						],
+						name: 'Full (Include Whole Audio Track)',
+						value: 'full',
 					},
-					// ===== UNIFIED LAYER CONFIGURATION FOR CLIPS =====
-					...createNestedLayerFields('video'),
 				],
+				default: 'full',
+				description: 'How to handle audio duration',
+			},
+			{
+				displayName: 'Audio Trim Start',
+				name: 'audio_trim_start',
+				type: 'string',
+				default: '',
+				placeholder: '00:00:45 or 00:00:45.25',
+				description: 'Timestamp of the trim start point (format: HH:MM:SS or HH:MM:SS.MS)',
+			},
+			{
+				displayName: 'Audio Trim End',
+				name: 'audio_trim_end',
+				type: 'string',
+				default: '',
+				placeholder: '00:00:55 or 00:00:55.25',
+				description: 'Timestamp of the trim end point (format: HH:MM:SS or HH:MM:SS.MS)',
 			},
 		],
 	},
 
-	// ===== ADVANCED MODE: JSON CONFIGURATION =====
+	// ===== DYNAMIC LAYER CONFIGURATION (like Image/PDF action) =====
+	...createDynamicLayerConfigurationFields(
+		'video',
+		'create', 
+		'configurationMode',
+		'Layers',
+		'layerItems',
+		'Add Layer'
+	),
+
+	// ===== ADVANCED MODE: MULTI-CLIP JSON CONFIGURATION =====
 	{
 		displayName: 'Clips (JSON)',
 		name: 'clipsJson',

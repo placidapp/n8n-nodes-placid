@@ -26,7 +26,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	}
 	
 	if (configurationMode === 'advanced') {
-		// Advanced mode: use JSON directly
+		// Advanced mode: multi-clip JSON configuration (unchanged)
 		const clipsJson = this.getNodeParameter('clipsJson', i) as string;
 		try {
 			const clips = JSON.parse(clipsJson);
@@ -38,49 +38,36 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			throw new Error(`Invalid JSON in clips configuration: ${error.message}`);
 		}
 	} else {
-		// Simple mode: process form fields for each clip
-		const clips = this.getNodeParameter('clips.clipItems', i, []) as Array<{
-			template_id: { value: string } | string;
-			audioSettings?: {
-				audio?: string;
-				audio_duration?: string;
-				audio_trim_start?: string;
-				audio_trim_end?: string;
-			};
-			layerData: {
-				layerItems?: LayerData[];
-			};
-		}>;
-
-		if (!clips || clips.length === 0) {
-			throw new Error('At least one clip is required for video generation');
+		// Simple mode: single template + layers (like image/PDF action)
+		const templateIdParam = this.getNodeParameter('template_id', i) as { value: string } | string;
+		const templateId = typeof templateIdParam === 'string' ? templateIdParam : templateIdParam.value;
+		
+		if (!templateId) {
+			throw new Error('Template ID is required');
 		}
 
-		// Process each clip
-		for (const clip of clips) {
-			// Handle both resource locator modes: list mode (object with value) and ID mode (direct string)
-			const templateId = typeof clip.template_id === 'string' ? clip.template_id : clip.template_id.value;
-			
-			if (!templateId) {
-				throw new Error('Template ID is required for each clip');
-			}
+		const clipData: { template_uuid: string; layers: { [key: string]: any }; [key: string]: any } = {
+			template_uuid: templateId,
+			layers: {},
+		};
 
-			const clipData: { template_uuid: string; layers: { [key: string]: any }; [key: string]: any } = {
-				template_uuid: templateId,
-				layers: {},
-			};
-
-			// Add audio settings if provided
-			if (clip.audioSettings) {
-				Object.assign(clipData, clip.audioSettings);
-			}
-
-			// Process layers for this clip using the unified utility function
-			const layers = clip.layerData?.layerItems || [];
-			clipData.layers = await processUnifiedLayers(layers, this, i);
-
-			body.clips.push(clipData);
+		// Add audio settings if provided (video-specific)
+		const audioSettings = this.getNodeParameter('audioSettings', i, {}) as {
+			audio?: string;
+			audio_duration?: string;
+			audio_trim_start?: string;
+			audio_trim_end?: string;
+		};
+		
+		if (audioSettings && Object.keys(audioSettings).length > 0) {
+			Object.assign(clipData, audioSettings);
 		}
+
+		// Process layers using the unified utility function (same as image/PDF action)
+		const layers = this.getNodeParameter('layers.layerItems', i, []) as LayerData[];
+		clipData.layers = await processUnifiedLayers(layers, this, i);
+
+		body.clips = [clipData];
 	}
 	
 
