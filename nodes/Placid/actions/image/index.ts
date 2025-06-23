@@ -1,5 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
-import { createLayerConfigurationFields } from '../../utils/layerUtils';
+import { createDynamicLayerConfigurationFields } from '../../utils/layerUtils';
 
 export const imageOperations: INodeProperties[] = [
 	{
@@ -102,8 +102,8 @@ export const imageFields: INodeProperties[] = [
 		},
 	},
 
-	// ===== UNIFIED LAYER CONFIGURATION =====
-	...createLayerConfigurationFields(
+	// ===== DYNAMIC LAYER CONFIGURATION =====
+	...createDynamicLayerConfigurationFields(
 		'image',
 		'create', 
 		'configurationMode',

@@ -214,14 +214,236 @@ export function createLayerConfigurationFields(
 	];
 }
 
+/**
+ * Generates dynamic layer configuration fields that automatically populate layer names from the selected template
+ * @param resourceType - The resource type (image, video, pdf) for display options and feature customization
+ * @param operationType - The operation type (create) for display options
+ * @param configModeField - The configuration mode field name (configurationMode)
+ * @param collectionName - The name of the collection (layers, layerData, etc.)
+ * @param itemName - The name of the collection items (layerItems, textLayers, etc.)
+ * @param displayName - The display name for the collection item (Add Layer, Text Layer, etc.)
+ */
+export function createDynamicLayerConfigurationFields(
+	resourceType: ResourceType,
+	operationType: string,
+	configModeField: string,
+	collectionName: string,
+	itemName: string,
+	displayName: string
+): INodeProperties[] {
+	// Get all available layer types from the layer properties system for property generation
+	const allLayerTypes = getAllLayerTypes();
+
+	// Generate unified property field with all properties from all layer types
+	const propertyFields: INodeProperties[] = [];
+	
+	// Collect all unique properties from all layer types into one unified dropdown
+	const allPropertiesArray: {name: string, value: string, description: string}[] = [];
+	
+	allLayerTypes.forEach(layerType => {
+		const properties = getAllPropertiesForLayerType(layerType.value, resourceType);
+		properties.forEach(prop => {
+			// Skip custom property - we'll add it once at the end
+			if (prop.value === 'custom') {
+				return;
+			}
+			
+			// Use a string key to avoid duplicates
+			const key = `${prop.value}|${prop.name}`;
+			if (!allPropertiesArray.some(p => `${p.value}|${p.name}` === key)) {
+				// Add layer type prefix to property name for better UX
+				const prefixedName = `${layerType.name.toUpperCase()}: ${prop.name}`;
+				allPropertiesArray.push({
+					name: prefixedName,
+					value: prop.value,
+					description: `${prop.description} (${layerType.name} layer property)`,
+				});
+			}
+		});
+	});
+	
+	// Sort all properties alphabetically
+	allPropertiesArray.sort((a, b) => a.name.localeCompare(b.name));
+	
+	// Add custom property once at the end (no layer type prefix since it works for all)
+	allPropertiesArray.push({
+		name: 'Custom Property',
+		value: 'custom',
+		description: 'Set a custom property name and value (works with any layer type)',
+	});
+
+	// Create single unified property dropdown with all properties
+	if (allPropertiesArray.length > 0) {
+		propertyFields.push({
+			displayName: 'Property',
+			name: 'property',
+			type: 'options' as const,
+			options: allPropertiesArray,
+			default: allPropertiesArray[0]?.value || '',
+			description: 'Choose what property to set for this layer',
+		});
+	}
+
+	// Generate value input fields for all possible properties
+	const valueFields: INodeProperties[] = [];
+	
+	// Get all unique properties across all layer types for this resource
+	const allProperties = new Map<string, any>();
+	allLayerTypes.forEach(layerType => {
+		const properties = getAllPropertiesForLayerType(layerType.value, resourceType);
+		properties.forEach(prop => {
+			if (!allProperties.has(prop.value)) {
+				allProperties.set(prop.value, {
+					...prop,
+					layerTypes: [layerType.value]
+				});
+			} else {
+				allProperties.get(prop.value)!.layerTypes.push(layerType.value);
+			}
+		});
+	});
+
+	// Create value input fields for each unique property
+	allProperties.forEach((propInfo, propValue) => {
+		// Skip custom properties as they are handled separately
+		if (propValue === 'custom') {
+			return;
+		}
+
+		// Use fieldType and placeholder from the property definition, with fallbacks
+		let fieldType = propInfo.fieldType || 'string';
+		const placeholder = propInfo.placeholder || '';
+		const description = propInfo.description;
+
+		// Special handling for imageArray - use textarea for multiple URLs
+		if (propValue === 'imageArray') {
+			fieldType = 'string';
+		}
+
+		// Special handling for binary fields - use string input for field name
+		if (fieldType === 'binary') {
+			fieldType = 'string';
+		}
+
+		// Create the base field configuration
+		const fieldConfig: any = {
+			displayName: propInfo.name,
+			name: `${propValue}Value`,
+			type: fieldType,
+			default: '',
+			description,
+			displayOptions: {
+				show: {
+					property: [propValue],
+				},
+			},
+		};
+
+		// Add type-specific properties
+		if (fieldType === 'options' && propInfo.options) {
+			fieldConfig.options = propInfo.options;
+			fieldConfig.default = propInfo.options[0]?.value || '';
+		} else {
+			fieldConfig.placeholder = placeholder;
+			
+			// Special handling for imageArray - use textarea
+			if (propValue === 'imageArray') {
+				fieldConfig.typeOptions = {
+					rows: 4,
+				};
+			}
+
+			// Special handling for binary fields - add hint about binary data
+			if (propInfo.fieldType === 'binary') {
+				fieldConfig.description = `${description} - Enter the field name containing the binary file data (e.g., "data")`;
+				fieldConfig.hint = 'The field name from the input data that contains the binary file data';
+			}
+		}
+
+		valueFields.push(fieldConfig);
+	});
+
+	// Add custom property fields
+	valueFields.push(
+		{
+			displayName: 'Custom Property Name',
+			name: 'customPropertyName',
+			type: 'string' as const,
+			default: '',
+			placeholder: 'e.g., lineHeight, letterSpacing, transform',
+			description: 'The name of the custom property to set',
+			displayOptions: {
+				show: {
+					property: ['custom'],
+				},
+			},
+		},
+		{
+			displayName: 'Custom Property Value',
+			name: 'customPropertyValue',
+			type: 'string' as const,
+			default: '',
+			placeholder: 'e.g., 1.5, 2px, scale(1.2)',
+			description: 'The value for the custom property',
+			displayOptions: {
+				show: {
+					property: ['custom'],
+				},
+			},
+		}
+	);
+
+	return [
+		{
+			displayName: collectionName,
+			name: collectionName.toLowerCase(),
+			type: 'fixedCollection' as const,
+			default: { [itemName]: [] },
+			typeOptions: {
+				multipleValues: true,
+			},
+			displayOptions: {
+				show: {
+					resource: [resourceType],
+					operation: [operationType],
+					[configModeField]: ['simple'],
+				},
+			},
+			options: [
+				{
+					name: itemName,
+					displayName: displayName,
+					values: [
+						{
+							displayName: 'Layer Name',
+							name: 'layerId',
+							type: 'options' as const,
+							description: 'Select the layer to modify from the template',
+							default: '',
+							required: true,
+							typeOptions: {
+								loadOptionsMethod: 'getTemplateLayers',
+								loadOptionsDependsOn: ['template_id'],
+							},
+						},
+						// Note: Layer Type field is removed - it will be extracted from the layerId value
+						...propertyFields,
+						...valueFields,
+					],
+				},
+			],
+		},
+	];
+}
+
 // ===== SHARED LAYER PROCESSING FUNCTIONS =====
 
 /**
  * Interface for unified layer data structure
  */
 export interface LayerData {
-	layerId: string;
-	layerType: string;
+	layerId: string; // Contains: "layerName|layerType" for template-driven layers, or just "layerName" for backward compatibility
+	layerType?: string; // Optional - no longer used for property filtering, all properties are available
 	property: string;
 	// Text layer properties
 	textValue?: string;
@@ -396,9 +618,26 @@ export async function processUnifiedLayers(
 	const processedLayers: { [key: string]: any } = {};
 
 	for (const layer of layers) {
-		const layerName = layer.layerId;
+		// Extract layer name and type from encoded layerId value
+		let layerName: string;
+		let layerType: string;
+		
+		// Check if layerId contains the new encoded format (layerName|layerType)
+		if (layer.layerId && layer.layerId.includes('|')) {
+			const parts = layer.layerId.split('|');
+			layerName = parts[0];
+			layerType = parts[1] || 'unknown';
+		} else {
+			// Fallback for backward compatibility or manual input
+			layerName = layer.layerId;
+			layerType = layer.layerType || 'unknown';
+		}
 		
 		if (!layerName) continue;
+		
+		// Note: layerType is extracted for potential future validation or debugging
+		// Currently used for extracting the correct layer name from encoded format
+		void layerType; // Suppress TypeScript unused variable warning
 		
 		// Initialize layer object if it doesn't exist
 		if (!processedLayers[layerName]) {

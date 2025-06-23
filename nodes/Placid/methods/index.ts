@@ -83,17 +83,15 @@ async function getLayersForTemplate(loadOptionsFunctions: ILoadOptionsFunctions,
 	
 	if (response.layers && Array.isArray(response.layers)) {
 		for (const layer of response.layers) {
-			// Only include text and picture layers
+			// Include all layer types (text, picture, shape, browserframe, barcode, rating, subtitle, etc.)
 			const layerType = layer.type || 'unknown';
-			if (layerType === 'text' || layerType === 'picture') {
-				const displayName = `${layer.name} (${layerType})`;
-				
-				layers.push({
-					name: displayName,
-					value: `${layer.name}|${layerType}`, // Encode both name and type in value
-					description: `Layer type: ${layerType}`,
-				});
-			}
+			const displayName = `${layer.name} (${layerType})`;
+			
+			layers.push({
+				name: displayName,
+				value: `${layer.name}|${layerType}`, // Encode both name and type in value
+				description: `Layer type: ${layerType}`,
+			});
 		}
 	}
 	
@@ -149,4 +147,6 @@ export async function getPdfPagePictureLayers(this: ILoadOptionsFunctions): Prom
 		{ name: 'Enter Layer Name Manually', value: 'manual', description: 'Type the layer name directly' },
 		{ name: 'Use Advanced Mode for Complex Configurations', value: '', description: 'Switch to Advanced mode for full control' },
 	];
-} 
+}
+
+ 
