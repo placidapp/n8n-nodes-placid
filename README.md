@@ -145,7 +145,12 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
-### 0.1.1 (Current)
+### 0.1.2 (Current)
+- **n8n Cloud Verification Fix** 🔧
+- Fixed ESLint violations by replacing `setTimeout` with n8n's `sleep` helper
+- Ensures compatibility with n8n cloud verification requirements
+
+### 0.1.1
 - **Documentation improvements** 📚
 - Added comprehensive usage examples and feature documentation
 - Added reference to [Placid n8n Setup Guide](https://placid.app/help/n8n-setup-guide)

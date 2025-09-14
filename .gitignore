@@ -91,3 +91,6 @@ watch-dev.sh
 # DynamoDB Local files
 .dynamodb/
 package-lock.json
+
+# Claude development docs (private)
+CLAUDE.md
