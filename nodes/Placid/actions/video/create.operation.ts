@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, sleep } from 'n8n-workflow';
 import { getVideoById } from './get.operation';
 import { processUnifiedLayers, LayerData } from '../../utils/layerUtils';
 import { PlacidConfig } from '../../utils/config';
@@ -96,7 +96,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
 			// Wait before polling (except for first attempt)
 			if (attempt > 0) {
-				await new Promise(resolve => setTimeout(resolve, pollInterval));
+				await sleep(pollInterval);
 			}
 			
 			// Use the shared helper function to poll status
