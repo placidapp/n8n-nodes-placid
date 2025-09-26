@@ -125,7 +125,7 @@ export function createDynamicLayerConfigurationFields(
 
 		// Create the base field configuration
 		const fieldConfig: any = {
-			displayName: propInfo.name,
+			displayName: propValue === 'value' ? 'Value' : propInfo.name,
 			name: `${propValue}Value`,
 			type: fieldType,
 			default: '',
