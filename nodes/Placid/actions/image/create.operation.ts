@@ -45,7 +45,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	}
 	
 
-	
+
 	// Use the standard REST API endpoint for creating images
 	const createOptions = {
 		method: 'POST' as IHttpRequestMethods,
@@ -72,10 +72,10 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			if (attempt > 0) {
 				await sleep(pollInterval);
 			}
-			
+
 			// Use the shared helper function to poll status
 			const pollResponse = await getImageById(this, imageId);
-			
+
 			// Check if image is finished or has error
 			if (pollResponse.status === 'finished') {
 				return {
@@ -85,7 +85,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 				throw new Error(`Image generation failed: ${pollResponse.error || 'Unknown error'}`);
 			}
 
-			
+
 			// Continue polling if status is still "queued" or other pending status
 		}
 		

@@ -447,14 +447,26 @@ export async function processUnifiedLayers(
 				valueToSet = layer.textValue;
 				break;
 			case 'color':
-			case 'text_color':
-			case 'alt_text_color':
-			case 'background_color':
-			case 'border_color':
 				valueToSet = layer.colorValue;
 				break;
+			case 'text_color':
+				valueToSet = layer.text_colorValue;
+				break;
+			case 'alt_text_color':
+				valueToSet = layer.alt_text_colorValue;
+				break;
+			case 'background_color':
+				valueToSet = layer.background_colorValue;
+				break;
+			case 'border_color':
+				valueToSet = layer.border_colorValue;
+				break;
 			case 'font':
+				valueToSet = layer.fontValue;
+				break;
 			case 'alt_font':
+				valueToSet = layer.alt_fontValue;
+				break;
 			case 'fontFamily':
 				valueToSet = layer.fontFamilyValue;
 				break;
