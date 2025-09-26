@@ -145,7 +145,14 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
-### 0.1.2 (Current)
+### 0.1.3 (Current)
+- **Bug Fixes** 🔧
+- Fixed property field mapping for shape layer colors (background_color, border_color)
+- Fixed text layer property mappings (text_color, alt_text_color, font, alt_font)
+- Fixed rating/barcode "Value" field label collision
+- Improved layer property handling across all resources
+
+### 0.1.2
 - **n8n Cloud Verification Fix** 🔧
 - Fixed ESLint violations by replacing `setTimeout` with n8n's `sleep` helper
 - Ensures compatibility with n8n cloud verification requirements
