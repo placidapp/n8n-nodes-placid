@@ -145,7 +145,11 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
-### 0.1.3 (Current)
+### 0.1.4 (Current)
+- **Item Tracking Fix** 🔧
+- Added pairedItem to all operation returns to enable proper input-output tracking and data lineage in n8n workflows
+
+### 0.1.3
 - **Bug Fixes** 🔧
 - Fixed property field mapping for shape layer colors (background_color, border_color)
 - Fixed text layer property mappings (text_color, alt_text_color, font, alt_font)
