@@ -24,11 +24,12 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		await this.helpers.httpRequestWithAuthentication.call(this, 'placidApi', options);
 
 		return {
-			json: { 
-				success: true, 
+			json: {
+				success: true,
 				templateId,
 				message: 'Template deleted successfully'
 			},
+			pairedItem: { item: index },
 		};
 	} catch (error) {
 		throw new NodeOperationError(this.getNode(), `Failed to delete template: ${error.message}`, {

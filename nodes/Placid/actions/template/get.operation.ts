@@ -26,6 +26,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		// The Placid API returns a single template object directly
 		return {
 			json: response,
+			pairedItem: { item: index },
 		};
 	} catch (error) {
 		throw new NodeOperationError(this.getNode(), `Failed to get template: ${error.message}`, {

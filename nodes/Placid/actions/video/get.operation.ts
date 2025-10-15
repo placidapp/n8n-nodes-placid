@@ -24,8 +24,9 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	}
 	
 	const response = await getVideoById(this, videoId);
-	
+
 	return {
 		json: response,
+		pairedItem: { item: i },
 	};
 } 

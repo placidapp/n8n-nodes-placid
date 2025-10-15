@@ -27,5 +27,6 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	
 	return {
 		json: response,
+		pairedItem: { item: i },
 	};
 } 

@@ -106,6 +106,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			if (pollResponse.status === 'finished') {
 				return {
 					json: pollResponse,
+					pairedItem: { item: i },
 				};
 			} else if (pollResponse.status === 'error') {
 				throw new Error(`Video generation failed: ${pollResponse.error || 'Unknown error'}`);
@@ -121,5 +122,6 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	// Fallback: return the initial response if no ID was provided
 	return {
 		json: createResponse,
+		pairedItem: { item: i },
 	};
 } 

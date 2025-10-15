@@ -53,6 +53,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 		return {
 			json: response,
+			pairedItem: { item: index },
 		};
 	} catch (error) {
 		throw new NodeOperationError(this.getNode(), `Failed to create template: ${error.message}`, {

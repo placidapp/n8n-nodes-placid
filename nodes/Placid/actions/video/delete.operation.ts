@@ -27,5 +27,6 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			message: `Video ${videoId} deleted successfully`,
 			id: videoId,
 		},
+		pairedItem: { item: i },
 	};
 } 

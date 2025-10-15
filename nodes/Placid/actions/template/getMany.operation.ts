@@ -69,6 +69,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		// Return the results as separate items
 		return allTemplates.map(template => ({
 			json: template,
+			pairedItem: { item: index },
 		}));
 
 	} catch (error) {

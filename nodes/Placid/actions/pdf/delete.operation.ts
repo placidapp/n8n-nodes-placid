@@ -27,5 +27,6 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			message: `PDF ${pdfId} deleted successfully`,
 			id: pdfId,
 		},
+		pairedItem: { item: i },
 	};
 } 

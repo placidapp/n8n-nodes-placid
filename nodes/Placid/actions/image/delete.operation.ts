@@ -27,5 +27,6 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			message: `Image ${imageId} deleted successfully`,
 			id: imageId,
 		},
+		pairedItem: { item: i },
 	};
 } 
