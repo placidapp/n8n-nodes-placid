@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData, NodeOperationError } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, NodeOperationError, IHttpRequestMethods } from 'n8n-workflow';
 import { PlacidConfig } from '../../utils/config';
 
 export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData> {
@@ -73,11 +73,11 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 	try {
 		// Make the API request
-		const response = await this.helpers.requestWithAuthentication.call(
+		const response = await this.helpers.httpRequestWithAuthentication.call(
 			this,
 			'placidApi',
 			{
-				method: 'POST',
+				method: 'POST' as IHttpRequestMethods,
 				url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.MEDIA),
 				formData,
 				json: false, // Important: don't parse as JSON since we're sending multipart

@@ -1,4 +1,4 @@
-import { INodeProperties } from 'n8n-workflow';
+import { INodeProperties, IHttpRequestMethods } from 'n8n-workflow';
 import { getAllLayerTypes, getAllPropertiesForLayerType } from './layerProperties';
 import { IExecuteFunctions, NodeOperationError } from 'n8n-workflow';
 import { PlacidConfig } from './config';
@@ -339,11 +339,11 @@ export async function uploadBinaryFile(
 
 	try {
 		// Make the upload request (same as upload media operation)
-		const response = await executeFunctions.helpers.requestWithAuthentication.call(
+		const response = await executeFunctions.helpers.httpRequestWithAuthentication.call(
 			executeFunctions,
 			'placidApi',
 			{
-				method: 'POST',
+				method: 'POST' as IHttpRequestMethods,
 				url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.MEDIA),
 				formData,
 				json: false, // Important: don't parse as JSON since we're sending multipart
