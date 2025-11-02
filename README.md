@@ -145,7 +145,14 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
-### 0.1.4 (Current)
+### 0.1.5 (Current)
+- **Error Handling Enhancement** 🛡️
+- Added ContinueOnFail support to allow workflows to continue execution even when individual operations encounter errors
+- Improved error reporting with standardized NodeOperationError across all operations for better debugging
+- **Compatibility Update** 🔄
+- Updated authentication method to use latest n8n API for improved reliability
+
+### 0.1.4
 - **Item Tracking Fix** 🔧
 - Added pairedItem to all operation returns to enable proper input-output tracking and data lineage in n8n workflows
 
