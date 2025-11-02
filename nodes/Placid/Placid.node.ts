@@ -150,14 +150,32 @@ export class Placid implements INodeType {
 		}
 		
 		for (let i = 0; i < items.length; i++) {
-			if (operation === 'getMany') {
-				// Handle operations that return multiple items
-				const results = await operationHandler.call(this, i);
-				returnData.push(...results);
-			} else {
-				// Handle operations that return single items
-				const result = await operationHandler.call(this, i);
-				returnData.push(result);
+			try {
+				if (operation === 'getMany') {
+					// Handle operations that return multiple items
+					const results = await operationHandler.call(this, i);
+					returnData.push(...results);
+				} else {
+					// Handle operations that return single items
+					const result = await operationHandler.call(this, i);
+					returnData.push(result);
+				}
+			} catch (error) {
+				// Handle errors based on continueOnFail setting
+				if (this.continueOnFail()) {
+					// Continue workflow execution, return error with original input
+					returnData.push({
+						json: this.getInputData()[i].json,
+						error,
+						pairedItem: { item: i },
+					});
+				} else {
+					// Stop workflow execution, throw error with proper context
+					if (error instanceof NodeOperationError) {
+						throw error;
+					}
+					throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
+				}
 			}
 		}
 		

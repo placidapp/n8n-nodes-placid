@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, sleep } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, sleep, NodeOperationError } from 'n8n-workflow';
 import { getVideoById } from './get.operation';
 import { processUnifiedLayers, LayerData } from '../../utils/layerUtils';
 import { PlacidConfig } from '../../utils/config';
@@ -31,11 +31,11 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		try {
 			const clips = JSON.parse(clipsJson);
 			if (!Array.isArray(clips)) {
-				throw new Error('Clips JSON must be an array');
+				throw new NodeOperationError(this.getNode(), 'Clips JSON must be an array');
 			}
 			body.clips = clips;
 		} catch (error) {
-			throw new Error(`Invalid JSON in clips configuration: ${error.message}`);
+			throw new NodeOperationError(this.getNode(), `Invalid JSON in clips configuration: ${error.message}`);
 		}
 	} else {
 		// Simple mode: single template + layers (like image/PDF action)
@@ -43,7 +43,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		const templateId = typeof templateIdParam === 'string' ? templateIdParam : templateIdParam.value;
 		
 		if (!templateId) {
-			throw new Error('Template ID is required');
+			throw new NodeOperationError(this.getNode(), 'Template ID is required');
 		}
 
 		const clipData: { template_uuid: string; layers: { [key: string]: any }; [key: string]: any } = {
@@ -109,14 +109,14 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 					pairedItem: { item: i },
 				};
 			} else if (pollResponse.status === 'error') {
-				throw new Error(`Video generation failed: ${pollResponse.error || 'Unknown error'}`);
+				throw new NodeOperationError(this.getNode(), `Video generation failed: ${pollResponse.error || 'Unknown error'}`);
 			}
 			
 			// Continue polling if status is still "queued" or other pending status
 		}
 		
 		// If we've reached max attempts without completion
-		throw new Error(`${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
+		throw new NodeOperationError(this.getNode(), `${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
 	}
 	
 	// Fallback: return the initial response if no ID was provided

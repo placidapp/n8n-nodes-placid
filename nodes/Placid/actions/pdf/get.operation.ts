@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, NodeOperationError } from 'n8n-workflow';
 import { PlacidConfig } from '../../utils/config';
 
 // Helper function to get PDF by ID - can be reused by create operation for polling
@@ -20,7 +20,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	const pdfId = this.getNodeParameter('pdfId', i) as string;
 	
 	if (!pdfId) {
-		throw new Error('PDF ID is required');
+		throw new NodeOperationError(this.getNode(), 'PDF ID is required');
 	}
 	
 	const response = await getPdfById(this, pdfId);

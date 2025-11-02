@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, NodeOperationError } from 'n8n-workflow';
 import { PlacidConfig } from '../../utils/config';
 
 // Helper function to get video by ID - can be reused by create operation for polling
@@ -20,7 +20,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 	const videoId = this.getNodeParameter('videoId', i) as string;
 	
 	if (!videoId) {
-		throw new Error('Video ID is required');
+		throw new NodeOperationError(this.getNode(), 'Video ID is required');
 	}
 	
 	const response = await getVideoById(this, videoId);

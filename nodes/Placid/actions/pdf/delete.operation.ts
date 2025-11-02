@@ -1,11 +1,11 @@
-import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, NodeOperationError } from 'n8n-workflow';
 import { PlacidConfig } from '../../utils/config';
 
 export async function execute(this: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
 	const pdfId = this.getNodeParameter('pdfId', i) as string;
 	
 	if (!pdfId) {
-		throw new Error('PDF ID is required');
+		throw new NodeOperationError(this.getNode(), 'PDF ID is required');
 	}
 	
 	const options = {

@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, sleep } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods, sleep, NodeOperationError } from 'n8n-workflow';
 import { getImageById } from './get.operation';
 import { processUnifiedLayers, LayerData } from '../../utils/layerUtils';
 import { PlacidConfig } from '../../utils/config';
@@ -36,7 +36,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		try {
 			body.layers = JSON.parse(layersJson);
 		} catch (error) {
-			throw new Error(`Invalid JSON in layers configuration: ${error.message}`);
+			throw new NodeOperationError(this.getNode(), `Invalid JSON in layers configuration: ${error.message}`);
 		}
 	} else {
 		// Simple mode: process unified layer structure using utility function
@@ -83,7 +83,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 					pairedItem: { item: i },
 				};
 			} else if (pollResponse.status === 'error') {
-				throw new Error(`Image generation failed: ${pollResponse.error || 'Unknown error'}`);
+				throw new NodeOperationError(this.getNode(), `Image generation failed: ${pollResponse.error || 'Unknown error'}`);
 			}
 
 
@@ -91,7 +91,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		}
 		
 		// If we've reached max attempts without completion
-		throw new Error(`${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
+		throw new NodeOperationError(this.getNode(), `${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
 	}
 	
 	// Fallback: return the initial response if no ID was provided
