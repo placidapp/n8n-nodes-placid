@@ -96,36 +96,63 @@ async function uploadBinaryFileToMedia(
 }
 
 export async function execute(this: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
-	// Get PDF sources from fixedCollection
-	const pdfSourcesData = this.getNodeParameter('pdfSources', i) as { sources?: PdfSource[] };
-	const sources = pdfSourcesData.sources || [];
+	const configurationMode = this.getNodeParameter('configurationMode', i, 'simple') as string;
+	let urls: string[] = [];
 
-	// Validate source count (2-10 required)
-	if (sources.length < 2) {
-		throw new NodeOperationError(this.getNode(), 'At least 2 PDF sources are required for merging');
-	}
-	if (sources.length > 10) {
-		throw new NodeOperationError(this.getNode(), 'Maximum 10 PDF sources allowed for merging');
-	}
-
-	// Process each source - collect URLs (uploading binary files as needed)
-	const urls: string[] = [];
-	for (let sourceIndex = 0; sourceIndex < sources.length; sourceIndex++) {
-		const source = sources[sourceIndex];
-
-		if (source.sourceType === 'binary') {
-			// Upload binary file and get URL
-			if (!source.binaryField) {
-				throw new NodeOperationError(this.getNode(), `Binary field name is required for source ${sourceIndex + 1}`);
+	if (configurationMode === 'advanced') {
+		// Advanced mode: parse JSON array of URLs
+		const urlsJson = this.getNodeParameter('urlsJson', i) as string;
+		try {
+			const parsedUrls = JSON.parse(urlsJson);
+			if (!Array.isArray(parsedUrls)) {
+				throw new NodeOperationError(this.getNode(), 'URLs JSON must be an array');
 			}
-			const url = await uploadBinaryFileToMedia(this, i, source.binaryField);
-			urls.push(url);
-		} else {
-			// Use URL directly
-			if (!source.url) {
-				throw new NodeOperationError(this.getNode(), `URL is required for source ${sourceIndex + 1}`);
+			urls = parsedUrls;
+		} catch (error) {
+			if (error instanceof NodeOperationError) {
+				throw error;
 			}
-			urls.push(source.url);
+			throw new NodeOperationError(this.getNode(), `Invalid JSON in URLs configuration: ${error.message}`);
+		}
+
+		// Validate URL count (2-10 required)
+		if (urls.length < 2) {
+			throw new NodeOperationError(this.getNode(), 'At least 2 PDF URLs are required for merging');
+		}
+		if (urls.length > 10) {
+			throw new NodeOperationError(this.getNode(), 'Maximum 10 PDF URLs allowed for merging');
+		}
+	} else {
+		// Simple mode: Get PDF sources from fixedCollection
+		const pdfSourcesData = this.getNodeParameter('pdfSources', i) as { sources?: PdfSource[] };
+		const sources = pdfSourcesData.sources || [];
+
+		// Validate source count (2-10 required)
+		if (sources.length < 2) {
+			throw new NodeOperationError(this.getNode(), 'At least 2 PDF sources are required for merging');
+		}
+		if (sources.length > 10) {
+			throw new NodeOperationError(this.getNode(), 'Maximum 10 PDF sources allowed for merging');
+		}
+
+		// Process each source - collect URLs (uploading binary files as needed)
+		for (let sourceIndex = 0; sourceIndex < sources.length; sourceIndex++) {
+			const source = sources[sourceIndex];
+
+			if (source.sourceType === 'binary') {
+				// Upload binary file and get URL
+				if (!source.binaryField) {
+					throw new NodeOperationError(this.getNode(), `Binary field name is required for source ${sourceIndex + 1}`);
+				}
+				const url = await uploadBinaryFileToMedia(this, i, source.binaryField);
+				urls.push(url);
+			} else {
+				// Use URL directly
+				if (!source.url) {
+					throw new NodeOperationError(this.getNode(), `URL is required for source ${sourceIndex + 1}`);
+				}
+				urls.push(source.url);
+			}
 		}
 	}
 

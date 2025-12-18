@@ -138,7 +138,34 @@ export const pdfFields: INodeProperties[] = [
 		},
 	},
 
-	// ===== MERGE OPERATION: PDF SOURCES =====
+	// ===== MERGE OPERATION: CONFIGURATION MODE =====
+	{
+		displayName: 'Configuration Mode',
+		name: 'configurationMode',
+		type: 'options',
+		options: [
+			{
+				name: 'Simple',
+				value: 'simple',
+				description: 'Configure PDFs via form fields',
+			},
+			{
+				name: 'Advanced',
+				value: 'advanced',
+				description: 'Specify URLs as JSON array',
+			},
+		],
+		default: 'simple',
+		description: 'Choose how you want to configure the PDF merge',
+		displayOptions: {
+			show: {
+				resource: ['pdf'],
+				operation: ['merge'],
+			},
+		},
+	},
+
+	// ===== MERGE OPERATION: PDF SOURCES (Simple Mode) =====
 	{
 		displayName: 'PDF Sources',
 		name: 'pdfSources',
@@ -153,6 +180,7 @@ export const pdfFields: INodeProperties[] = [
 			show: {
 				resource: ['pdf'],
 				operation: ['merge'],
+				configurationMode: ['simple'],
 			},
 		},
 		options: [
@@ -207,6 +235,26 @@ export const pdfFields: INodeProperties[] = [
 				],
 			},
 		],
+	},
+
+	// ===== MERGE OPERATION: URLS JSON (Advanced Mode) =====
+	{
+		displayName: 'URLs (JSON)',
+		name: 'urlsJson',
+		type: 'json',
+		default: '[]',
+		required: true,
+		description: 'JSON array of PDF URLs to merge (2-10 URLs). Example: ["https://example.com/doc1.pdf", "https://example.com/doc2.pdf"]',
+		displayOptions: {
+			show: {
+				resource: ['pdf'],
+				operation: ['merge'],
+				configurationMode: ['advanced'],
+			},
+		},
+		typeOptions: {
+			rows: 10,
+		},
 	},
 
 	// ===== OPTIONAL SETTINGS =====
