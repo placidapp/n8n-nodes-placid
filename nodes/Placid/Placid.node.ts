@@ -10,6 +10,7 @@ import * as imageCreate from './actions/image/create.operation';
 import * as imageGet from './actions/image/get.operation';
 import * as imageDelete from './actions/image/delete.operation';
 import * as pdfCreate from './actions/pdf/create.operation';
+import * as pdfMerge from './actions/pdf/merge.operation';
 import * as pdfGet from './actions/pdf/get.operation';
 import * as pdfDelete from './actions/pdf/delete.operation';
 import * as videoCreate from './actions/video/create.operation';
@@ -119,6 +120,7 @@ export class Placid implements INodeType {
 			},
 			pdf: {
 				create: pdfCreate.execute,
+				merge: pdfMerge.execute,
 				get: pdfGet.execute,
 				delete: pdfDelete.execute,
 			},

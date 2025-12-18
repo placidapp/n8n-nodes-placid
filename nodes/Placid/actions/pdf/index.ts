@@ -20,6 +20,12 @@ export const pdfOperations: INodeProperties[] = [
 				action: 'Create a PDF from a template',
 			},
 			{
+				name: 'Merge',
+				value: 'merge',
+				description: 'Merge multiple existing PDFs into one',
+				action: 'Merge PDFs from URLs',
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				description: 'Retrieve an existing PDF by ID',
@@ -132,6 +138,77 @@ export const pdfFields: INodeProperties[] = [
 		},
 	},
 
+	// ===== MERGE OPERATION: PDF SOURCES =====
+	{
+		displayName: 'PDF Sources',
+		name: 'pdfSources',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		required: true,
+		description: 'PDF files to merge (2-10 sources required). You can mix URLs and binary files.',
+		displayOptions: {
+			show: {
+				resource: ['pdf'],
+				operation: ['merge'],
+			},
+		},
+		options: [
+			{
+				name: 'sources',
+				displayName: 'Sources',
+				values: [
+					{
+						displayName: 'Source Type',
+						name: 'sourceType',
+						type: 'options',
+						options: [
+							{
+								name: 'URL',
+								value: 'url',
+							},
+							{
+								name: 'PDF File (Binary)',
+								value: 'binary',
+								description: 'Upload a PDF file directly from binary data',
+							},
+						],
+						default: 'url',
+						description: 'Choose whether to provide a URL or binary file',
+					},
+					{
+						displayName: 'URL',
+						name: 'url',
+						type: 'string',
+						default: '',
+						placeholder: 'https://example.com/document.pdf',
+						description: 'URL of a PDF file to merge',
+						displayOptions: {
+							show: {
+								sourceType: ['url'],
+							},
+						},
+					},
+					{
+						displayName: 'Binary Field',
+						name: 'binaryField',
+						type: 'string',
+						default: 'data',
+						placeholder: 'data',
+						description: 'Name of the binary field containing the PDF file',
+						displayOptions: {
+							show: {
+								sourceType: ['binary'],
+							},
+						},
+					},
+				],
+			},
+		],
+	},
+
 	// ===== OPTIONAL SETTINGS =====
 	{
 		displayName: 'Additional Options',
@@ -142,7 +219,7 @@ export const pdfFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['pdf'],
-				operation: ['create'],
+				operation: ['create', 'merge'],
 			},
 		},
 		options: [

@@ -17,7 +17,8 @@ export class PlacidConfig {
 	 */
 	static readonly ENDPOINTS = {
 		IMAGES: '/images',
-		PDFS: '/pdfs', 
+		PDFS: '/pdfs',
+		PDFS_MERGE: '/pdfs/merge',
 		VIDEOS: '/videos',
 		TEMPLATES: '/templates',
 		MEDIA: '/media'
