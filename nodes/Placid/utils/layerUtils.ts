@@ -2,6 +2,7 @@ import { INodeProperties, IHttpRequestMethods } from 'n8n-workflow';
 import { getAllLayerTypes, getAllPropertiesForLayerType } from './layerProperties';
 import { IExecuteFunctions, NodeOperationError } from 'n8n-workflow';
 import { PlacidConfig } from './config';
+import { buildMultipartBody } from './multipartUtils';
 
 // ===== SHARED LAYER CONFIGURATION FIELDS =====
 
@@ -326,28 +327,27 @@ export async function uploadBinaryFile(
 		fileName = `upload.${extension}`;
 	}
 
-	// Prepare form data for upload (same as upload media operation)
-	const formData: { [key: string]: any } = {
-		file: {
-			value: fileBuffer,
-			options: {
-				filename: fileName,
-				contentType: binaryData.mimeType || 'application/octet-stream',
-			},
+	// Build multipart body for upload
+	const { body, boundary } = buildMultipartBody([
+		{
+			key: 'file',
+			buffer: fileBuffer,
+			filename: fileName,
+			contentType: binaryData.mimeType || 'application/octet-stream',
 		},
-	};
+	]);
 
 	try {
-		// Make the upload request (same as upload media operation)
+		// Make the upload request
 		const response = await executeFunctions.helpers.httpRequestWithAuthentication.call(
 			executeFunctions,
 			'placidApi',
 			{
 				method: 'POST' as IHttpRequestMethods,
 				url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.MEDIA),
-				formData,
-				json: false, // Important: don't parse as JSON since we're sending multipart
+				body,
 				headers: {
+					'Content-Type': `multipart/form-data; boundary=${boundary}`,
 					'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 				},
 			},

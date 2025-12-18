@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeExecutionData, NodeOperationError, IHttpRequestMethods } from 'n8n-workflow';
 import { PlacidConfig } from '../../utils/config';
+import { buildMultipartBody, MultipartFile } from '../../utils/multipartUtils';
 
 export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData> {
 	const files = this.getNodeParameter('files.fileItems', index, []) as Array<{
@@ -28,8 +29,8 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		throw new NodeOperationError(this.getNode(), 'No binary data found in input');
 	}
 
-	// Prepare form data for multipart upload
-	const formData: { [key: string]: any } = {};
+	// Collect files for multipart upload
+	const filesToUpload: MultipartFile[] = [];
 
 	for (let i = 0; i < files.length; i++) {
 		const fileConfig = files[i];
@@ -61,15 +62,16 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 			fileName = `file${i + 1}.${extension}`;
 		}
 
-		// Add to form data
-		formData[fileKey] = {
-			value: fileBuffer,
-			options: {
-				filename: fileName,
-				contentType: binaryData.mimeType || 'application/octet-stream',
-			},
-		};
+		filesToUpload.push({
+			key: fileKey,
+			buffer: fileBuffer,
+			filename: fileName,
+			contentType: binaryData.mimeType || 'application/octet-stream',
+		});
 	}
+
+	// Build multipart body
+	const { body, boundary } = buildMultipartBody(filesToUpload);
 
 	try {
 		// Make the API request
@@ -79,9 +81,9 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 			{
 				method: 'POST' as IHttpRequestMethods,
 				url: PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.MEDIA),
-				formData,
-				json: false, // Important: don't parse as JSON since we're sending multipart
+				body,
 				headers: {
+					'Content-Type': `multipart/form-data; boundary=${boundary}`,
 					'x-placid-integration': PlacidConfig.HTTP.HEADERS.PLACID_INTEGRATION,
 				},
 			},
