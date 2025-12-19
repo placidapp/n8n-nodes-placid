@@ -195,6 +195,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		const pollingConfig = PlacidConfig.getPollingConfig('PDF');
 		const maxAttempts = pollingConfig.MAX_ATTEMPTS;
 		const pollInterval = pollingConfig.INTERVAL_MS;
+		let lastStatus = createResponse.status;
 
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
 			// Wait before polling (except for first attempt)
@@ -204,6 +205,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 
 			// Use the shared helper function to poll status
 			const pollResponse = await getPdfById(this, pdfId);
+			lastStatus = pollResponse.status;
 
 			// Check if PDF is finished or has error
 			if (pollResponse.status === 'finished') {
@@ -220,7 +222,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 		}
 
 		// If we've reached max attempts without completion
-		throw new NodeOperationError(this.getNode(), `${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${createResponse.status}`);
+		throw new NodeOperationError(this.getNode(), `${pollingConfig.TIMEOUT_MESSAGE} after ${maxAttempts} attempts. Last status: ${lastStatus}`);
 	}
 
 	// Fallback: return the initial response if no ID was provided
