@@ -148,10 +148,11 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 				urls.push(url);
 			} else {
 				// Use URL directly
-				if (!source.url) {
+				const url = (source.url || '').trim();
+				if (!url) {
 					throw new NodeOperationError(this.getNode(), `URL is required for source ${sourceIndex + 1}`);
 				}
-				urls.push(source.url);
+				urls.push(url);
 			}
 		}
 	}
