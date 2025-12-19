@@ -107,7 +107,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 			if (!Array.isArray(parsedUrls)) {
 				throw new NodeOperationError(this.getNode(), 'URLs JSON must be an array');
 			}
-			urls = parsedUrls;
+			urls = parsedUrls.filter((url: unknown) => typeof url === 'string' && url.trim().length > 0);
 		} catch (error) {
 			if (error instanceof NodeOperationError) {
 				throw error;
@@ -117,7 +117,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 
 		// Validate URL count (2-10 required)
 		if (urls.length < 2) {
-			throw new NodeOperationError(this.getNode(), 'At least 2 PDF URLs are required for merging');
+			throw new NodeOperationError(this.getNode(), 'At least 2 valid PDF URLs are required for merging');
 		}
 		if (urls.length > 10) {
 			throw new NodeOperationError(this.getNode(), 'Maximum 10 PDF URLs allowed for merging');
