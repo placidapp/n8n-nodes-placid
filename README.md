@@ -145,7 +145,20 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
-### 0.1.5 (Current)
+### 0.1.6 (Current)
+- **New PDF Merge Operation**
+- Merge multiple PDFs into a single document with mixed URL/binary source support
+- Simple and Advanced configuration modes for flexibility
+- **Security Improvements**
+- Sanitized filenames in multipart headers to prevent injection attacks
+- Added randomness to multipart boundaries to prevent collisions
+- **Bug Fixes**
+- Validate whitespace-only URLs in simple mode
+- Validate URLs in advanced mode PDF merge configuration
+- Show last polled status in timeout error messages
+- Fixed multipart body handling for media uploads
+
+### 0.1.5
 - **Error Handling Enhancement** 🛡️
 - Added ContinueOnFail support to allow workflows to continue execution even when individual operations encounter errors
 - Improved error reporting with standardized NodeOperationError across all operations for better debugging
