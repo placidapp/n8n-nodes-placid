@@ -23,7 +23,7 @@ export const pdfOperations: INodeProperties[] = [
 				name: 'Merge',
 				value: 'merge',
 				description: 'Merge multiple existing PDFs into one',
-				action: 'Merge PDFs from URLs',
+				action: 'Merge multiple PDF files',
 			},
 			{
 				name: 'Get',
@@ -244,7 +244,7 @@ export const pdfFields: INodeProperties[] = [
 		type: 'json',
 		default: '[]',
 		required: true,
-		description: 'JSON array of PDF URLs to merge (2-10 URLs). Example: ["https://example.com/doc1.pdf", "https://example.com/doc2.pdf"]',
+		description: 'JSON array of PDF URLs to merge (2-10 URLs). Example: ["https://example.com/doc1.pdf", "https://example.com/doc2.pdf"].',
 		displayOptions: {
 			show: {
 				resource: ['pdf'],
