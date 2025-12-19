@@ -19,7 +19,7 @@ export interface MultipartBody {
  * Builds a multipart/form-data body from files without external dependencies
  */
 export function buildMultipartBody(files: MultipartFile[]): MultipartBody {
-	const boundary = '----n8nPlacidBoundary' + Date.now().toString(36);
+	const boundary = '----n8nPlacidBoundary' + Date.now().toString(36) + Math.random().toString(36).slice(2);
 	const parts: Buffer[] = [];
 
 	for (const file of files) {
