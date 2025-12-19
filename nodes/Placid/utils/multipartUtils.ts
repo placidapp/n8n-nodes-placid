@@ -23,9 +23,10 @@ export function buildMultipartBody(files: MultipartFile[]): MultipartBody {
 	const parts: Buffer[] = [];
 
 	for (const file of files) {
+		const safeFilename = file.filename.replace(/["\\r\n]/g, '_');
 		const header =
 			`--${boundary}\r\n` +
-			`Content-Disposition: form-data; name="${file.key}"; filename="${file.filename}"\r\n` +
+			`Content-Disposition: form-data; name="${file.key}"; filename="${safeFilename}"\r\n` +
 			`Content-Type: ${file.contentType}\r\n\r\n`;
 
 		parts.push(Buffer.from(header, 'utf-8'));
