@@ -145,7 +145,12 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
-### 0.1.6 (Current)
+### 0.1.7 (Current)
+- **Bug Fixes**
+- File names that contain the letter "r" are no longer changed during media upload (for example, report.pdf was sent as _epo_t.pdf)
+- Carriage returns in file names are now removed from multipart headers
+
+### 0.1.6
 - **New PDF Merge Operation**
 - Merge multiple PDFs into a single document with mixed URL/binary source support
 - Simple and Advanced configuration modes for flexibility
