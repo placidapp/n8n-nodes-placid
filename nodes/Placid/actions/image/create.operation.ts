@@ -83,7 +83,7 @@ export async function execute(this: IExecuteFunctions, i: number): Promise<INode
 					pairedItem: { item: i },
 				};
 			} else if (pollResponse.status === 'error') {
-				throw new NodeOperationError(this.getNode(), `Image generation failed: ${pollResponse.error || 'Unknown error'}`);
+				throw new NodeOperationError(this.getNode(), `Image generation failed: ${pollResponse.error_message || pollResponse.error || 'Unknown error'}${pollResponse.error_code ? ` (${pollResponse.error_code})` : ''}`);
 			}
 
 
