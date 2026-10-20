@@ -145,6 +145,20 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
 
 ## Version history
 
+### Unreleased
+
+- Failed image, PDF, and video create operations now show the API's `error_message`
+  and include `error_code` when it is present. The format is
+  `<Image|PDF|Video> generation failed: <message> (<CODE>)`.
+  For example, a font failure ends with `(FONT_LOAD_FAILED)`.
+- The existing `error` fallback and `Unknown error` fallback remain. A missing
+  code does not add a suffix. Successful results and Continue On Fail item
+  routing are unchanged.
+- Workflow filters that match the full error text must account for the new
+  message and code suffix. This change does not add a separate code field.
+- This entry is not a published release. The package version remains 0.1.7;
+  Armin owns the version update and npm release.
+
 ### 0.1.7 (Current)
 - **Bug Fixes**
 - File names that contain the letter "r" are no longer changed during media upload (for example, report.pdf was sent as _epo_t.pdf)
