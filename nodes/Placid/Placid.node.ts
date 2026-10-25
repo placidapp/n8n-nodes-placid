@@ -1,4 +1,4 @@
-import { INodeType, INodeTypeDescription, IExecuteFunctions, INodeExecutionData, NodeConnectionType, NodeOperationError } from 'n8n-workflow';
+import { IDataObject, INodeType, INodeTypeDescription, IExecuteFunctions, INodeExecutionData, NodeApiError, NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 import { requestDefaults } from './transport';
 import { getTemplates, getTemplateLayers, getTextLayers, getPictureLayers, getPdfPageTextLayers, getPdfPagePictureLayers } from './methods';
 import { imageOperations, imageFields } from './actions/image';
@@ -22,6 +22,16 @@ import * as templateGet from './actions/template/get.operation';
 import * as templateGetMany from './actions/template/getMany.operation';
 import * as templateUpdate from './actions/template/update.operation';
 import * as templateDelete from './actions/template/delete.operation';
+
+// Placid answers a malformed JSON body with HTTP 400 and only this message.
+// n8n wraps it in a NodeApiError whose own message is a generic text.
+const MALFORMED_JSON_MESSAGE = 'The request body is not valid JSON.';
+
+function malformedJsonMessage(error: unknown): string | undefined {
+	if (!(error instanceof NodeApiError) || error.httpCode !== '400') return undefined;
+	const data = error.context.data as IDataObject | undefined;
+	return data?.message === MALFORMED_JSON_MESSAGE ? `[400] ${MALFORMED_JSON_MESSAGE}` : undefined;
+}
 
 export class Placid implements INodeType {
 	description: INodeTypeDescription = {
@@ -162,7 +172,9 @@ export class Placid implements INodeType {
 					const result = await operationHandler.call(this, i);
 					returnData.push(result);
 				}
-			} catch (error) {
+			} catch (caught) {
+				const malformed = malformedJsonMessage(caught);
+				const error = malformed ? new NodeOperationError(this.getNode(), malformed, { itemIndex: i }) : caught;
 				// Handle errors based on continueOnFail setting
 				if (this.continueOnFail()) {
 					// Continue workflow execution, return error with original input

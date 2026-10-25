@@ -156,6 +156,10 @@ For detailed examples and walkthroughs, see the [📖 Placid n8n Setup Guide](ht
   routing are unchanged.
 - Workflow filters that match the full error text must account for the new
   message and code suffix. This change does not add a separate code field.
+- When the API answers HTTP 400 with the message
+  `The request body is not valid JSON.`, every operation now shows
+  `[400] The request body is not valid JSON.` instead of the generic n8n
+  `Bad request` text. There is no retry. Other HTTP errors are unchanged.
 - This entry is not a published release. The package version remains 0.1.7;
   Armin owns the version update and npm release.
 
