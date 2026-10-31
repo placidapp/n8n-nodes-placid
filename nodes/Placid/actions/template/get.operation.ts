@@ -13,7 +13,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 		const options = {
 			method: 'GET' as IHttpRequestMethods,
-			url: `${PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.TEMPLATES)}/${templateId}`,
+			url: `${PlacidConfig.getRestUrl(PlacidConfig.ENDPOINTS.TEMPLATES)}/${encodeURIComponent(templateId)}`,
 			headers: {
 				'Accept': PlacidConfig.HTTP.HEADERS.ACCEPT,
 				'Content-Type': PlacidConfig.HTTP.HEADERS.CONTENT_TYPE,
